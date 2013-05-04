@@ -11,6 +11,7 @@ import sk.action.ActionBar;
 import sk.action.BarNode;
 import sk.action.ability.AbilityType;
 import sk.action.ability.BarAbility;
+import sk.action.ability.DefenseAbility;
 
 public class AbilityHandler extends Node {
     NPC[] possibleTargets = NPCs.getLoaded(Var.CATABLEPON_ID);
@@ -46,8 +47,9 @@ public class AbilityHandler extends Node {
             if (node != null && Util.isUnderAttack()) {
                 if (node.isValid() && node.canUse()) {
                     if (Util.getHpPercent() < 60) {
-                        if (!abilityIsBasic(node)) {
-                            Var.status = "[ABILITIES] Getting rejuv adrenaline";
+                        if (!ActionBar.getNode(DefenseAbility.REJUVENATE).canUse() && !abilityIsBasic(node)) {
+                            Var.status = "[ABILITY] Getting rejuv adrenaline";
+                            Util.debug();
                             node = basicFilter;
                         }
                     }
@@ -57,18 +59,23 @@ public class AbilityHandler extends Node {
                         if (!abilityIsBasic(node)) {
                             if (Players.getLocal().getInteracting().getHealthPercent() < 60) {
                                 Var.status = "[ABILITY] Not using Ultimate";
+                                Util.debug();
                                 node = basicFilter;
                                 break useAbility;
                             }
-                            Var.status = "[ABILITIES] Not using Threshold";
+                            Var.status = "[ABILITY] Not using Threshold";
+                            Util.debug();
                             node = thresFilter;
                         }
                     }
-                        Var.status = "[ABILITIES] " + format(node.toString().substring(9));
+                        Var.status = "[ABILITY] " + format(node.toString().substring(9));
+                        Util.debug();
                         node.use();
                     } catch (NullPointerException e) {
                         e.printStackTrace();
                         System.out.println("NPE: " + e.getMessage());
+                        Var.status = "NPE: " + e.getMessage();
+                        Util.debug();
                     }
                     // Was getting NPEs in this part
                 }

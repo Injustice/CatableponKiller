@@ -36,13 +36,13 @@ public class Attacker extends Node {
     @Override
     public void execute() {
         NPC target;
-        Var.status = ("[ATTACK] Getting target");
         target = NPCs.getNearest(targetFilter);
         top:
         if (target != null) {
             if (Util.isOnScreen(target)) {
                 if (target.interact("Attack")) {
-                    Var.status = ("[ATTACK] Attacked");
+                    Var.status = "[ATTACK] Attacking";
+                    Util.debug();
                     Util.waitFor(new Condition() {
                         @Override
                         public boolean validate() {
@@ -52,7 +52,6 @@ public class Attacker extends Node {
                     if (Camera.getPitch() != 86) {
                         new Thread(new Runnable() {
                             public void run() {
-                                Var.status = ("[ATTACK] Setting camera");
                                 Camera.setPitch(true);
                             }
                         }).start();
@@ -60,6 +59,7 @@ public class Attacker extends Node {
                 }
             } else {
                 Var.status = ("[ATTACK] Turning to target");
+                Util.debug();
                 Camera.turnTo(target);
                 Util.waitFor(new Condition() {
                     @Override
@@ -74,6 +74,7 @@ public class Attacker extends Node {
                 break top;
             }
             Var.status = "[ATTACK] Waiting for spawn";
+            Util.debug();
             Util.waitFor(new Condition() {
                 @Override
                 public boolean validate() {

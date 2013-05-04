@@ -5,6 +5,7 @@ import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.Widgets;
 import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
+import org.powerbot.game.api.methods.tab.Skills;
 import org.powerbot.game.api.util.Filter;
 import org.powerbot.game.api.util.Timer;
 import org.powerbot.game.api.wrappers.Entity;
@@ -118,6 +119,50 @@ public class Util {
                         npc.getHealthPercent() > 0;
             }
         }) != null;
+    }
+
+    /**
+     * Outputs the status to terminal with other information
+     */
+    public static void debug() {
+        if (Var.DEBUG_MODE) {
+            System.out.println("[DEBUG] - " + Var.runTime.toElapsedString() + " - " +
+                    Var.status);
+        }
+    }
+
+    public static class ExpStats {
+        public ExpStats() {
+
+        }
+
+        public int getTotalLvl() {
+            return getLvl(Skills.ATTACK) +
+                    getLvl(Skills.MAGIC) +
+                    getLvl(Skills.DEFENSE) +
+                    getLvl(Skills.CONSTITUTION) +
+                    getLvl(Skills.STRENGTH) +
+                    getLvl(Skills.RANGE) +
+                    getLvl(Skills.MAGIC);
+        }
+
+        public int getLvl(int skill) {
+            return Skills.getRealLevel(skill);
+        }
+
+        public int getTotalExp() {
+            return getExp(Skills.ATTACK) +
+                    getExp(Skills.MAGIC) +
+                    getExp(Skills.DEFENSE) +
+                    getExp(Skills.CONSTITUTION) +
+                    getExp(Skills.STRENGTH) +
+                    getExp(Skills.RANGE) +
+                    getExp(Skills.MAGIC);
+        }
+
+        public int getExp(int skill) {
+            return Skills.getExperience(skill);
+        }
     }
 
 }

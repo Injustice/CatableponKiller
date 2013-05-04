@@ -11,6 +11,8 @@ import org.powerbot.game.api.methods.tab.Skills;
 import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.interactive.NPC;
 import org.powerbot.game.api.wrappers.node.GroundItem;
+import sk.action.ActionBar;
+import sk.action.BarNode;
 
 import java.awt.*;
 
@@ -27,16 +29,17 @@ public class FighterPaint {
     static Font font3 = new Font("Tahoma", 0, 11);
     static Color grey = new Color(0, 0, 0, 100);
     static BasicStroke stroke1 = new BasicStroke(1);
+    static Util.ExpStats exp = new Util.ExpStats();
 
     public static void onRepaint(Graphics g1) {
         Graphics2D g = (Graphics2D) g1;
         Point loc = new Point(10, 220);
         Color green = new Color(20, 126, 59, 150);
-        int expGained = getTotalExp() - Var.totalExp;
+        int expGained = exp.getTotalExp() - Var.totalExp;
         int expHour = (int) (expGained * 3600000d / Var.runTime.getElapsed());
         int kills = expGained / 133;
         int killsPH = (int) (kills * 3600000d / Var.runTime.getElapsed());
-        int constExp = getExp(Skills.CONSTITUTION) - Var.startConstitutionExp;
+        int constExp = exp.getExp(Skills.CONSTITUTION) - Var.startConstitutionExp;
         int constPH = (int) (constExp * 3600000d / Var.runTime.getElapsed());
 
         g.setStroke(stroke1);
@@ -58,10 +61,16 @@ public class FighterPaint {
         g.drawString("Exp PH: " + Util.format(expHour, 2), loc.x + 100, loc.y + 15);
         g.drawString("Const Exp: " + Util.format(constExp, 2), loc.x, loc.y + 30);
         g.drawString("Const PH: " + Util.format(constPH, 2), loc.x + 100, loc.y + 30);
-        g.drawString("Levels: " + (getTotalLvl() - Var.totalLvl), loc.x, loc.y + 45);
+        g.drawString("Levels: " + (exp.getTotalLvl() - Var.totalLvl), loc.x, loc.y + 45);
         g.drawString("Charms picked: " + Util.format(Var.charmsLooted, 2), loc.x + 100, loc.y + 45);
         g.drawString("Run time: " + Var.runTime.toElapsedString(), loc.x, loc.y + 60);
+        g.drawString("Rejuvenates: " + Var.rejuvs, loc.x + 100, loc.y + 60);
         g.drawString("Status: " + Var.status, loc.x, loc.y + 75);
+        g.setColor(Color.RED);
+        g.setFont(font1);
+        g.drawString("" + Players.getLocal().getHealthPercent(),
+                Players.getLocal().getCentralPoint().x,
+                Players.getLocal().getCentralPoint().y);
         g.setColor(green);
         drawMouse(g);
         drawTiles(g);
@@ -158,33 +167,14 @@ public class FighterPaint {
         }
         g.setColor(Color.BLACK);
         Players.getLocal().getLocation().draw(g);
-    }
-
-    private static int getTotalLvl() {
-        return getLvl(Skills.ATTACK) +
-                getLvl(Skills.MAGIC)+
-                getLvl(Skills.DEFENSE)+
-                getLvl(Skills.CONSTITUTION)+
-                getLvl(Skills.STRENGTH)+
-                getLvl(Skills.RANGE)+
-                getLvl(Skills.MAGIC);
-    }
-
-    private static int getLvl(int skill) {
-        return Skills.getRealLevel(skill);
-    }
-
-    private static int getTotalExp() {
-        return getExp(Skills.ATTACK) +
-                getExp(Skills.MAGIC) +
-                getExp(Skills.DEFENSE) +
-                getExp(Skills.CONSTITUTION) +
-                getExp(Skills.STRENGTH) +
-                getExp(Skills.RANGE) +
-                getExp(Skills.MAGIC);
-    }
-
-    private static int getExp(int skill) {
-        return Skills.getExperience(skill);
+        for (BarNode b : ActionBar.getAllNodes()) {
+            if (b != null && b.canUse()) {
+                g.setColor(Color.GREEN);
+                ActionBar.SlotData.getMainChild(b.getSlot()).draw(g);
+            } else if (b != null) {
+                g.setColor(Color.RED);
+                ActionBar.SlotData.getMainChild(b.getSlot()).draw(g);
+            }
+        }
     }
 }

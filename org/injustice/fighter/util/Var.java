@@ -15,6 +15,8 @@ import org.powerbot.game.api.wrappers.Tile;
  */
 public class Var {
     /* - CONSTANTS - */
+    public static final boolean DEBUG_MODE = true;
+
     public static final int CATABLEPON_ID = 4398;
     public static final int CATABLEPON_DEATH_ANIMATION_ID = 4270;
 
@@ -29,8 +31,7 @@ public class Var {
     /* - DYNAMICS - */
 
     public static boolean cannotReach = false;
-
-
+    public static int rejuvs;
     public static int startConstitutionExp;
     public static int totalExp;
     public static int startConstitutionLvl;

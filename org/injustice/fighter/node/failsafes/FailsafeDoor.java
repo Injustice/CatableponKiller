@@ -25,9 +25,11 @@ public class FailsafeDoor extends Node {
     @Override
     public void execute() {
         Var.status = "[GATE]";
+        Util.debug();
         SceneObject gate = SceneEntities.getNearest(closestGate);
         if (gate != null) {
             Var.status = "[GATE] Opening";
+            Util.debug();
             if (Util.isOnScreen(gate)) {
                 if (gate.interact("Open")) {
                     Var.cannotReach = false;
@@ -47,6 +49,7 @@ public class FailsafeDoor extends Node {
             }
         } else {
             Var.status = "[GATE] Null";
+            Util.debug();
         }
     }
 

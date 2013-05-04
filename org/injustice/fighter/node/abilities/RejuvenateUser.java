@@ -28,7 +28,9 @@ public class RejuvenateUser extends Node {
     @Override
     public void execute() {
         if (rejuv.canUse()) {
+            Var.rejuvs++;
             Var.status = "[REJUV] Using";
+            Util.debug();
             rejuv.use();
         }
     }

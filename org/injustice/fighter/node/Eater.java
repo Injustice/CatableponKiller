@@ -23,6 +23,7 @@ public class Eater extends Node {
         if (food != null) {
             if (food.getWidgetChild().interact("Eat")) {
                 Var.status = "[EAT] " + food.getName();
+                Util.debug();
             }
         }
     }
