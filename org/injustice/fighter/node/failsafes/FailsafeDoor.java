@@ -4,7 +4,8 @@ import org.injustice.fighter.util.Condition;
 import org.injustice.fighter.util.Util;
 import org.injustice.fighter.util.Var;
 import org.injustice.fighter.util.enums.Gate;
-import org.powerbot.core.script.job.state.Node;
+import org.injustice.framework.Strategy;
+import org.injustice.framework.Task;
 import org.powerbot.game.api.methods.node.SceneEntities;
 import org.powerbot.game.api.util.Filter;
 import org.powerbot.game.api.wrappers.node.SceneObject;
@@ -16,7 +17,7 @@ import org.powerbot.game.api.wrappers.node.SceneObject;
  * Time: 16:33
  * To change this template use File | Settings | File Templates.
  */
-public class FailsafeDoor extends Node {
+public class FailsafeDoor extends Strategy implements Task {
     @Override
     public boolean activate() {
         return !Var.CENTRE_TILE.canReach() || Var.cannotReach;
@@ -33,6 +34,7 @@ public class FailsafeDoor extends Node {
             if (Util.isOnScreen(gate)) {
                 if (gate.interact("Open")) {
                     Var.cannotReach = false;
+                    org.powerbot.core.script.job.Task.sleep(1000, 1250);
                     Util.waitFor(new Condition() {
                         @Override
                         public boolean validate() {

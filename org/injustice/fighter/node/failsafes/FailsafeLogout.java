@@ -4,7 +4,8 @@ import org.injustice.fighter.util.Condition;
 import org.injustice.fighter.util.Util;
 import org.injustice.fighter.util.Var;
 import org.injustice.fighter.util.enums.Food;
-import org.powerbot.core.script.job.state.Node;
+import org.injustice.framework.Strategy;
+import org.injustice.framework.Task;
 import org.powerbot.game.api.methods.Calculations;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.node.SceneEntities;
@@ -21,11 +22,10 @@ import sk.action.ability.DefenseAbility;
  * Time: 18:28
  * To change this template use File | Settings | File Templates.
  */
-public class FailsafeLogout extends Node {
+public class FailsafeLogout extends Strategy implements Task {
     BarNode rejuv = ActionBar.getNode(DefenseAbility.REJUVENATE);
     @Override
     public boolean activate() {
-        Var.status = "[FAILSAFE] Validating";
         return Util.getHpPercent() > 10
                 &&
                 !Inventory.contains(Food.ALL.getIds())
@@ -56,7 +56,7 @@ public class FailsafeLogout extends Node {
         if (Game.logout(true)) {
             Var.status = "[FAILSAFE] Logging out";
         } else {
-            sleep(1500, 2000);
+            org.powerbot.core.script.job.Task.sleep(1500, 2000);
             break tryAgain;
         }
     }

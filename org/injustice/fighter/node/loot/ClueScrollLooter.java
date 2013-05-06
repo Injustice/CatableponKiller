@@ -1,10 +1,11 @@
 package org.injustice.fighter.node.loot;
 
 import org.injustice.fighter.util.Condition;
-import org.injustice.fighter.util.enums.Loot;
 import org.injustice.fighter.util.Util;
 import org.injustice.fighter.util.Var;
-import org.powerbot.core.script.job.state.Node;
+import org.injustice.fighter.util.enums.Loot;
+import org.injustice.framework.Strategy;
+import org.injustice.framework.Task;
 import org.powerbot.core.script.methods.Players;
 import org.powerbot.game.api.methods.node.GroundItems;
 import org.powerbot.game.api.methods.tab.Inventory;
@@ -18,10 +19,9 @@ import org.powerbot.game.api.wrappers.node.GroundItem;
  * Time: 20:49
  * To change this template use File | Settings | File Templates.
  */
-public class ClueScrollLooter extends Node {
+public class ClueScrollLooter extends Strategy implements Task {
     @Override
     public boolean activate() {
-        Var.status = "[SCROLL] Validating";
         return GroundItems.getNearest(Loot.MEDIUM_CLUE_SCROLL.getId()) != null
                 &&
                 !Inventory.contains(Loot.MEDIUM_CLUE_SCROLL.getId())

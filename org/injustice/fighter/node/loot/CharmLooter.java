@@ -2,10 +2,11 @@
 package org.injustice.fighter.node.loot;
 
 import org.injustice.fighter.util.Condition;
-import org.injustice.fighter.util.enums.Loot;
 import org.injustice.fighter.util.Util;
 import org.injustice.fighter.util.Var;
-import org.powerbot.core.script.job.state.Node;
+import org.injustice.fighter.util.enums.Loot;
+import org.injustice.framework.Strategy;
+import org.injustice.framework.Task;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.methods.node.GroundItems;
 import org.powerbot.game.api.methods.tab.Inventory;
@@ -19,7 +20,7 @@ import org.powerbot.game.api.wrappers.node.GroundItem;
  * Time: 18:28
  * To change this template use File | Settings | File Templates.
  */
-public class CharmLooter extends Node {
+public class CharmLooter extends Strategy implements Task {
 
     @Override
     public boolean activate() {
@@ -38,12 +39,20 @@ public class CharmLooter extends Node {
     public void execute() {
         final GroundItem charm = GroundItems.getNearest(Loot.ALL_CHARMS.getIds());
         int count = Inventory.getCount(charm.getId());
+        if (count != Inventory.getCount(charm.getId())) {
+            Var.charmsLooted++;
+        }
         Var.status = ("[LOOT] In charm node");
+        Util.debug();
         if (charm != null) {
             if (Util.isOnScreen(charm)) {
                 if (charm.interact("Take", charm.getGroundItem().getName())) {
                     Var.status = "[LOOT] " + charm.getGroundItem().getName();
-                    sleep(500);
+                    Util.debug();
+                    if (checkCount(charm.getId(), count)) {
+                        Var.charmsLooted++;
+                    }
+                    org.powerbot.core.script.job.Task.sleep(500);
                     Util.waitFor(new Condition() {
                         @Override
                         public boolean validate() {
@@ -54,10 +63,8 @@ public class CharmLooter extends Node {
             } else {
                 Camera.turnTo(charm);
                 Var.status = "[LOOT] Turning to charm";
+                Util.debug();
             }
-        }
-        if (count != Inventory.getCount(charm.getId())) {
-            Var.charmsLooted++;
         }
     }
 
@@ -73,5 +80,9 @@ public class CharmLooter extends Node {
 
     private boolean checkCharms(GroundItem g, int i) {
         return g.getId() == i && Inventory.contains(i);
+    }
+
+    private boolean checkCount(int i, int count) {
+        return Inventory.getCount(i) < count;
     }
 }

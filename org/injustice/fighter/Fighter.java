@@ -3,21 +3,21 @@ package org.injustice.fighter;
 import org.injustice.fighter.node.Attacker;
 import org.injustice.fighter.node.Eater;
 import org.injustice.fighter.node.abilities.AbilityHandler;
-import org.injustice.fighter.node.abilities.RejuvenateUser;
 import org.injustice.fighter.node.failsafes.FailsafeDoor;
-import org.injustice.fighter.node.loot.CharmCounter;
+import org.injustice.fighter.node.failsafes.FailsafeLogout;
 import org.injustice.fighter.node.loot.CharmLooter;
+import org.injustice.fighter.node.loot.ClueScrollLooter;
 import org.injustice.fighter.ui.FighterPaint;
 import org.injustice.fighter.util.Condition;
 import org.injustice.fighter.util.Util;
 import org.injustice.fighter.util.Var;
+import org.injustice.framework.Strategy;
+import org.injustice.framework.StrategyHandler;
 import org.powerbot.core.event.events.MessageEvent;
 import org.powerbot.core.event.listeners.MessageListener;
 import org.powerbot.core.event.listeners.PaintListener;
 import org.powerbot.core.script.ActiveScript;
-import org.powerbot.core.script.job.state.Node;
 import org.powerbot.game.api.Manifest;
-import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.input.Mouse;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.methods.tab.Skills;
@@ -31,17 +31,18 @@ import java.awt.*;
  * Time: 21:58
  * To change this template use File | Settings | File Templates.
  */
-@Manifest(authors = "Injustice", description = "Kills Catablepons in SoS", name = "CatableMassacre", version = 1.3)
+@Manifest(authors = "Injustice", description = "Kills Catablepons in SoS", name = "CatableMassacreL", version = 2.0)
 public class Fighter extends ActiveScript implements PaintListener, MessageListener {
-    private final Node[] nodes = { new RejuvenateUser(), new Attacker(),
+ /*   private final Node[] nodes = { new RejuvenateUser(), new Attacker(),
             new CharmLooter(), new Eater(), new FailsafeDoor(), new AbilityHandler()};
+ */
 
-
+    StrategyHandler s = new StrategyHandler();
     private int getExp(int skill) {
         return Skills.getExperience(skill);
     }
 
-    private void initTotalExp() {
+    private void setTotalExp() {
         Var.totalExp = getExp(Skills.ATTACK) +
                 getExp(Skills.MAGIC) +
                 getExp(Skills.DEFENSE) +
@@ -55,7 +56,7 @@ public class Fighter extends ActiveScript implements PaintListener, MessageListe
         return Skills.getRealLevel(skill);
     }
 
-    private void initTotalLvl() {
+    private void setTotalLvl() {
         Var.totalLvl = getLvl(Skills.ATTACK) +
                 getLvl(Skills.MAGIC) +
                 getLvl(Skills.DEFENSE) +
@@ -67,17 +68,25 @@ public class Fighter extends ActiveScript implements PaintListener, MessageListe
 
     @Override
     public void onStart() {
+        s.provide(new AbilityHandler());
+        s.provide(new FailsafeDoor());
+        s.provide(new FailsafeLogout());
+        s.provide(new CharmLooter());
+        s.provide(new ClueScrollLooter());
+        s.provide(new Attacker());
+        s.provide(new Eater());
+
+
         Mouse.setSpeed(Mouse.Speed.FAST);
         Var.status = "[ONSTART] Starting...";
         System.out.println("------------------------------------");
         System.out.println("Welcome to Injustice's CatableKiller");
         System.out.println("------------------------------------");
         Util.debug();
-        getContainer().submit(new CharmCounter());
-        if (Game.isLoggedIn()) {
+        if (Util.isReady()) {
             Var.startTile = Players.getLocal().getLocation();
-            initTotalExp();
-            initTotalLvl();
+            setTotalExp();
+            setTotalLvl();
             Var.startConstitutionExp = getExp(Skills.CONSTITUTION);
             Var.startConstitutionLvl = getLvl(Skills.CONSTITUTION);
         } else {
@@ -85,7 +94,7 @@ public class Fighter extends ActiveScript implements PaintListener, MessageListe
                 @Override
                 public boolean validate() {
                     Var.status = "[STARTUP] Not logged in";
-                    return Game.isLoggedIn();
+                    return Util.isReady();
                 }
             }, 5000);
         }
@@ -108,8 +117,8 @@ public class Fighter extends ActiveScript implements PaintListener, MessageListe
         System.out.println("Const exp: " + constExp);
         System.out.println("Const PH: " + (int) (constExp * 3600000d / Var.runTime.getElapsed()));
         System.out.println("Levels: " + (e.getTotalLvl() - Var.totalLvl));
-        System.out.println("Charms: " + Var.charmsLooted);
-        System.out.println("Rejuvs: " + Var.rejuvs);
+//        System.out.println("Charms: " + Var.charmsLooted);
+//        System.out.println("Rejuvs: " + Var.rejuvs);
         System.out.println("Runtime: " + Var.runTime.toElapsedString());
         System.out.println("--------------STATS--------------");
         System.out.println("---------------------------------");
@@ -120,15 +129,28 @@ public class Fighter extends ActiveScript implements PaintListener, MessageListe
 
     @Override
     public int loop() {
-        for(Node n : nodes) {
-            if (n.activate() && Util.isReady()) {
+        //       for(Node n : nodes) {
+        for (Strategy strat : s.getStrategies()) {
+            if (strat.activate() && Util.isReady() &&
+                    Var.totalExp != 0 && Var.totalLvl != 0 && // paint counters
+                    Var.startConstitutionExp != 0 &&
+                    Var.startConstitutionLvl != 0 &&
+                    (!strat.isRunning() && strat.getCondition().activate())) {
                 try {
-                    n.execute();
+                    s.executeStrategy(strat);
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                     Var.status = "[NPE] Node";
                     Util.debug();
                 }
+            } else if (Var.totalLvl == 0) {
+                setTotalLvl();;
+            } else if (Var.totalExp == 0) {
+                setTotalExp();
+            } else if (Var.startConstitutionExp == 0) {
+                Var.startConstitutionExp = getExp(Skills.CONSTITUTION);
+            } else if (Var.startConstitutionLvl == 0) {
+                Var.startConstitutionLvl = getExp(Skills.CONSTITUTION);
             }
         }
         return 50;

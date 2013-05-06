@@ -2,7 +2,8 @@ package org.injustice.fighter.node.abilities;
 
 import org.injustice.fighter.util.Util;
 import org.injustice.fighter.util.Var;
-import org.powerbot.core.script.job.state.Node;
+import org.injustice.framework.Strategy;
+import org.injustice.framework.Task;
 import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.util.Filter;
@@ -13,7 +14,8 @@ import sk.action.ability.AbilityType;
 import sk.action.ability.BarAbility;
 import sk.action.ability.DefenseAbility;
 
-public class AbilityHandler extends Node {
+public class AbilityHandler extends Strategy implements Task {
+    BarNode rejuv = ActionBar.getNode(DefenseAbility.REJUVENATE);
     NPC[] possibleTargets = NPCs.getLoaded(Var.CATABLEPON_ID);
 
     public boolean activate() {
@@ -43,7 +45,7 @@ public class AbilityHandler extends Node {
                         !abilityIsUltimate(n);
             }
         });
-        for (BarNode node : ActionBar.getAllNodes())  {
+        for (BarNode node : ActionBar.getNodes())  {
             if (node != null && Util.isUnderAttack()) {
                 if (node.isValid() && node.canUse()) {
                     if (Util.getHpPercent() < 60) {
@@ -55,7 +57,8 @@ public class AbilityHandler extends Node {
                     }
                     try {
                     useAbility:
-                    if (Players.getLocal().getInteracting().getHealthPercent() < 30) {
+                    if (Players.getLocal().getInteracting() != null &&  // NPE here
+                            Players.getLocal().getInteracting().getHealthPercent() < 30) {
                         if (!abilityIsBasic(node)) {
                             if (Players.getLocal().getInteracting().getHealthPercent() < 60) {
                                 Var.status = "[ABILITY] Not using Ultimate";
@@ -73,8 +76,8 @@ public class AbilityHandler extends Node {
                         node.use();
                     } catch (NullPointerException e) {
                         e.printStackTrace();
-                        System.out.println("NPE: " + e.getMessage());
-                        Var.status = "NPE: " + e.getMessage();
+                        System.out.println("NPE: " + e.getCause());
+                        Var.status = "NPE: " + e.getCause();
                         Util.debug();
                     }
                     // Was getting NPEs in this part

@@ -8,6 +8,7 @@ import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.methods.node.GroundItems;
 import org.powerbot.game.api.methods.tab.Skills;
+import org.powerbot.game.api.wrappers.Entity;
 import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.interactive.NPC;
 import org.powerbot.game.api.wrappers.node.GroundItem;
@@ -37,7 +38,7 @@ public class FighterPaint {
         Color green = new Color(20, 126, 59, 150);
         int expGained = exp.getTotalExp() - Var.totalExp;
         int expHour = (int) (expGained * 3600000d / Var.runTime.getElapsed());
-        int kills = expGained / 133;
+        int kills = expGained / 99;
         int killsPH = (int) (kills * 3600000d / Var.runTime.getElapsed());
         int constExp = exp.getExp(Skills.CONSTITUTION) - Var.startConstitutionExp;
         int constPH = (int) (constExp * 3600000d / Var.runTime.getElapsed());
@@ -62,9 +63,9 @@ public class FighterPaint {
         g.drawString("Const Exp: " + Util.format(constExp, 2), loc.x, loc.y + 30);
         g.drawString("Const PH: " + Util.format(constPH, 2), loc.x + 100, loc.y + 30);
         g.drawString("Levels: " + (exp.getTotalLvl() - Var.totalLvl), loc.x, loc.y + 45);
-        g.drawString("Charms picked: " + Util.format(Var.charmsLooted, 2), loc.x + 100, loc.y + 45);
+//        g.drawString("Charms picked: " + Util.format(Var.charmsLooted, 2), loc.x + 100, loc.y + 45);
         g.drawString("Run time: " + Var.runTime.toElapsedString(), loc.x, loc.y + 60);
-        g.drawString("Rejuvenates: " + Var.rejuvs, loc.x + 100, loc.y + 60);
+//        g.drawString("Rejuvenates: " + Var.rejuvs, loc.x + 100, loc.y + 60);
         g.drawString("Status: " + Var.status, loc.x, loc.y + 75);
         g.setColor(Color.RED);
         g.setFont(font1);
@@ -165,8 +166,6 @@ public class FighterPaint {
                 charm.getLocation().draw(g);
             }
         }
-        g.setColor(Color.BLACK);
-        Players.getLocal().getLocation().draw(g);
         for (BarNode b : ActionBar.getAllNodes()) {
             if (b != null && b.canUse()) {
                 g.setColor(Color.GREEN);
@@ -176,5 +175,18 @@ public class FighterPaint {
                 ActionBar.SlotData.getMainChild(b.getSlot()).draw(g);
             }
         }
+        g.setColor(Color.BLUE);
+        Var.startTile.draw(g);
+        fillPolygon(Var.startTile, g, new Color(0, 0, 255, 100));
+        g.setColor(Color.BLACK);
+        Players.getLocal().getLocation().draw(g);
+    }
+
+    private static void fillPolygon(Entity e, Graphics g, Color c) {
+        g.setColor(c);
+        for (Polygon p : e.getBounds()) {
+            g.fillPolygon(p);
+        }
     }
 }
+

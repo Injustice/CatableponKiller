@@ -3,19 +3,23 @@ package org.injustice.fighter.node;
 import org.injustice.fighter.util.Util;
 import org.injustice.fighter.util.Var;
 import org.injustice.fighter.util.enums.Food;
-import org.powerbot.core.script.job.state.Node;
+import org.injustice.framework.Strategy;
+import org.injustice.framework.Task;
 import org.powerbot.game.api.methods.tab.Inventory;
 import org.powerbot.game.api.wrappers.node.Item;
+import sk.action.ActionBar;
+import sk.action.BarNode;
 import sk.action.ability.DefenseAbility;
 
-public class Eater extends Node {
+public class Eater extends Strategy implements Task {
     DefenseAbility rejuvenate = DefenseAbility.REJUVENATE;
+    BarNode rejuv = ActionBar.getNode(rejuvenate);
     public boolean activate() {
         return Inventory.contains(Food.ALL.getIds())
                 &&
                 Util.getHpPercent() <= 40
                 &&
-                !rejuvenate.isVisible();
+                !rejuv.canUse();
     }
 
     public void execute() {

@@ -4,7 +4,8 @@ import org.injustice.fighter.util.Condition;
 import org.injustice.fighter.util.Util;
 import org.injustice.fighter.util.Var;
 import org.injustice.fighter.util.enums.Loot;
-import org.powerbot.core.script.job.state.Node;
+import org.injustice.framework.Strategy;
+import org.injustice.framework.Task;
 import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.methods.node.GroundItems;
@@ -19,7 +20,7 @@ import org.powerbot.game.api.wrappers.interactive.NPC;
  * Time: 18:26
  * To change this template use File | Settings | File Templates.
  */
-public class Attacker extends Node {
+public class Attacker extends Strategy implements Task {
     @Override
     public boolean activate() {
         return getCurrentInteracting() == null
