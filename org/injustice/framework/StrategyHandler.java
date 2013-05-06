@@ -32,6 +32,10 @@ public class StrategyHandler {
     public void provide(final Strategy strategy) {
         strategies.add(strategy);
     }
+    
+    public void removeStrategy(final Strategy strategy) {
+        stategies.remove(strategy);
+    }
 
     public void executeStrategy(Strategy s) {
         StrategyThread thread = new StrategyThread(s);
